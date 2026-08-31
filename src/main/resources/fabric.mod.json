@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "armorupgrades",
+	"version": "${version}",
+	"name": "ArmorUpgrades",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/armorupgrades/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.github.archangel_styx.ArmorUpgrades"
+		],
+		"client": [
+			"com.github.archangel_styx.client.ArmorUpgradesClient"
+		]
+	},
+	"mixins": [
+		"armorupgrades.mixins.json",
+		{
+			"config": "armorupgrades.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
