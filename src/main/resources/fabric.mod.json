@@ -2,16 +2,16 @@
 	"schemaVersion": 1,
 	"id": "armorupgrades",
 	"version": "${version}",
-	"name": "ArmorUpgrades",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Armor Upgrades",
+	"description": "A lightweight mod that adds effects to armor trims.",
 	"authors": [
-		"Me!"
+		"Archangel-Styx"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/archangel-styx/",
+		"sources": "https://github.com/archangel-styx/armorupgrades"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/armorupgrades/icon.png",
 	"environment": "*",
 	"entrypoints": {
