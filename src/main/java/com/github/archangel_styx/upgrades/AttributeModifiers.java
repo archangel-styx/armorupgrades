@@ -3,7 +3,8 @@ package com.github.archangel_styx.upgrades;
 import com.github.archangel_styx.ArmorUpgrades;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -11,8 +12,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraft.world.item.armortrim.TrimMaterial;
 
 import java.util.HashMap;
 import java.util.List;
@@ -191,7 +192,7 @@ public class AttributeModifiers {
 
     public static Map<Holder<Attribute>, AttributeModifier> getModifiers(Holder<TrimMaterial> trim, EquipmentSlot slot)
     {
-        String material = trim.value().assets().base().suffix();
+        String material = trim.value().assetName();
         return LOOKUP.get(new MaterialSlot(material, slot));
     }
 
@@ -219,7 +220,7 @@ public class AttributeModifiers {
     public static void removeModifiers(Map<Holder<Attribute>, AttributeModifier> modifiers, LivingEntity entity)
     {
         for (Map.Entry<Holder<Attribute>, AttributeModifier> entry : modifiers.entrySet()) {
-            Identifier id = entry.getValue().id();
+            ResourceLocation id = entry.getValue().id();
             AttributeInstance attr = entity.getAttribute(entry.getKey());
             if (attr != null) {
                 attr.removeModifier(id);
@@ -240,7 +241,7 @@ public class AttributeModifiers {
     private static Map<Holder<Attribute>, AttributeModifier> modify(AttributeModifier.Operation operation, MaterialAttribute matAtt)
     {
         Holder<Attribute> attr = matAtt.attribute();
-        Identifier id = Objects.requireNonNull(Identifier.tryBuild(ArmorUpgrades.MOD_ID, matAtt.toString()));
+        ResourceLocation id = Objects.requireNonNull(ResourceLocation.tryBuild(ArmorUpgrades.MOD_ID, matAtt.toString()));
 
         return Map.of(attr, new AttributeModifier(
                 id, matAtt.value(),

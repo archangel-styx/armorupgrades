@@ -5,9 +5,9 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.Identifier;
 
-import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.armortrim.TrimMaterial;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class ArmorUpgrades implements ModInitializer {
 		LOGGER.info("ArmorUpgrades initialized");
 	}
 
-	public static Identifier id(String path) {
-		return Identifier.fromNamespaceAndPath(MOD_ID, path);
+	public static ResourceLocation id(String path) {
+		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
 	}
 }
