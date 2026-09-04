@@ -1,27 +1,48 @@
 package com.github.archangel_styx;
 
+import com.github.archangel_styx.upgrades.AttributeModifiers;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.github.archangel_styx.upgrades.AttributeModifiers.*;
 
 public class ArmorUpgrades implements ModInitializer {
 	public static final String MOD_ID = "armorupgrades";
 
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+		ServerEntityEvents.EQUIPMENT_CHANGE.register((entity, slot, oldStack, newStack) -> {
+			if (!slot.isArmor()) return;
+			Holder<TrimMaterial> oldMat = getMaterial(oldStack);
+			Holder<TrimMaterial> newMat = getMaterial(newStack);
+			if (oldMat != null) {
+				var oldMods = getModifiers(oldMat, slot);
+				if (oldMods != null) removeModifiers(oldMods, entity);
+			}
+			if (newMat != null) {
+				var newMods = getModifiers(newMat, slot);
+				if (newMods != null) applyModifiers(newMods, entity);
+			}
 
-		LOGGER.info("Hello Fabric world!");
+			/*
+			1. get trim material.
+
+			2. use trim material to get the mapping of each attribute on that material.
+
+			3. for each attribute apply the modifier.
+			 */
+		});
+		AttributeModifiers.initialize();
+		LOGGER.info("ArmorUpgrades initialized");
 	}
 
 	public static Identifier id(String path) {
