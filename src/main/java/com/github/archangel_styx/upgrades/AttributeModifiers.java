@@ -1,250 +1,196 @@
 package com.github.archangel_styx.upgrades;
 
-import com.github.archangel_styx.ArmorUpgrades;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.minecraft.world.item.equipment.trim.TrimMaterial;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static com.github.archangel_styx.ArmorUpgrades.LOGGER;
+import static com.github.archangel_styx.ArmorUpgrades.MOD_ID;
 
 public class AttributeModifiers {
-    /*
-    *   POTENTIAL MODIFIERS:
-    *   POTENCY - how well the thing does something
-    *   EFFICIENCY - how quickly the thing does something
-    *   ATTRIBUTE BONUS - what bonus attributes if any
-    *
-    *   EMERALD - +POTENCY -EFFICIENCY +LUCK?
-    *   REDSTONE - +EFFICIENCY +MOVEMENT SPEED?
-    *   LAPIZ - +POTENCY
-    *   AMETHYST - -GRAVITY +SAFE FALL DISTANCE
-    *   QUARTZ - +POTENCY +EFFICIENCY +ATTACK DAMAGE
-    *   NETHERITE - +ARMOR +ARMOR TOUGHNESS +GRAVITY -SPEED
-    *   DIAMOND - +ARMOR +EFFICIENCY -POTENCY
-    *   GOLD - +ATTACK SPEED +MINING SPEED -EFFICIENCY -POTENCY
-    *   IRON - ++EFFICIENCY
-    *   COPPER - ++POTENCY
-    * */
+    public final static Identifier HELM_MODIFIER_ID = Identifier.fromNamespaceAndPath(MOD_ID, "helm_modifier");
+    public final static Identifier CHEST_MODIFIER_ID = Identifier.fromNamespaceAndPath(MOD_ID, "chest_modifier");
+    public final static Identifier LEGS_MODIFIER_ID = Identifier.fromNamespaceAndPath(MOD_ID, "legs_modifier");
+    public final static Identifier FEET_MODIFIER_ID = Identifier.fromNamespaceAndPath(MOD_ID, "boots_modifier");
 
-    record MaterialSlot(String material, EquipmentSlot slot) {}
-    record ModifierSpec(Holder<Attribute> attribute, float value, AttributeModifier.Operation op) {}
-    record MaterialProfile(String name, Map<EquipmentSlot, List<ModifierSpec>> modifiers) {}
+    record ModifierSpec(Holder<Attribute> attribute, AttributeModifier modifier) {}
 
-    private static final List<MaterialProfile> MATERIALS = List.of(
-            new MaterialProfile("amethyst", Map.of(
+    private final static Map<String, Map<EquipmentSlot, List<ModifierSpec>>> MATERIALS = Map.ofEntries(
+            Map.entry("minecraft:amethyst", Map.of(
                     EquipmentSlot.HEAD, List.of(
-                            new ModifierSpec(Attributes.GRAVITY, -0.001f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.SAFE_FALL_DISTANCE, 1.0f, AttributeModifier.Operation.ADD_VALUE)
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(HELM_MODIFIER_ID, -0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.CHEST, List.of(
-                            new ModifierSpec(Attributes.GRAVITY, -0.002f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.SAFE_FALL_DISTANCE, 1.0f, AttributeModifier.Operation.ADD_VALUE)
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(CHEST_MODIFIER_ID, -0.09f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.LEGS, List.of(
-                            new ModifierSpec(Attributes.GRAVITY, -0.001f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.SAFE_FALL_DISTANCE, 1.0f, AttributeModifier.Operation.ADD_VALUE)
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(LEGS_MODIFIER_ID, -0.07f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.FEET, List.of(
-                            new ModifierSpec(Attributes.GRAVITY, -0.001f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.SAFE_FALL_DISTANCE, 1.0f, AttributeModifier.Operation.ADD_VALUE)
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(FEET_MODIFIER_ID, -0.04f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.SAFE_FALL_DISTANCE, new AttributeModifier(FEET_MODIFIER_ID, 5.0f, AttributeModifier.Operation.ADD_VALUE))
                     )
             )),
-            new MaterialProfile("diamond", Map.of(
+            Map.entry("minecraft:diamond", Map.of(
                     EquipmentSlot.HEAD, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(HELM_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
                     EquipmentSlot.CHEST, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 1.0f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(CHEST_MODIFIER_ID,0.09f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
                     EquipmentSlot.LEGS, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(LEGS_MODIFIER_ID, 0.07f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
                     EquipmentSlot.FEET, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    )
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(FEET_MODIFIER_ID,0.04f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    ))
             )),
-            new MaterialProfile("emerald", Map.of(
+            Map.entry("minecraft:emerald", Map.of(
                     EquipmentSlot.HEAD, List.of(
-                            new ModifierSpec(Attributes.LUCK, 1.0f, AttributeModifier.Operation.ADD_VALUE)
+                            new ModifierSpec(Attributes.LUCK, new AttributeModifier(HELM_MODIFIER_ID,1.0f, AttributeModifier.Operation.ADD_VALUE)
+                    )),
+                    EquipmentSlot.CHEST, List.of(
+                            new ModifierSpec(Attributes.LUCK, new AttributeModifier(CHEST_MODIFIER_ID,0.5f, AttributeModifier.Operation.ADD_VALUE)
+
+                    )),
+                    EquipmentSlot.LEGS, List.of(
+                            new ModifierSpec(Attributes.LUCK, new AttributeModifier(LEGS_MODIFIER_ID,0.5f, AttributeModifier.Operation.ADD_VALUE)
+
+                    )),
+                    EquipmentSlot.FEET, List.of(
+                            new ModifierSpec(Attributes.LUCK, new AttributeModifier(FEET_MODIFIER_ID,0.5f, AttributeModifier.Operation.ADD_VALUE)
+                    ))
+            )),
+            Map.entry("minecraft:gold", Map.of(
+                    EquipmentSlot.HEAD, List.of(
+                            new ModifierSpec(Attributes.MINING_EFFICIENCY, new AttributeModifier(HELM_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ATTACK_SPEED, new AttributeModifier(HELM_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                            )),
+                    EquipmentSlot.CHEST, List.of(
+                            new ModifierSpec(Attributes.MINING_EFFICIENCY, new AttributeModifier(CHEST_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ATTACK_SPEED, new AttributeModifier(CHEST_MODIFIER_ID,0.1f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
+                    EquipmentSlot.LEGS, List.of(
+                            new ModifierSpec(Attributes.MINING_EFFICIENCY, new AttributeModifier(LEGS_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ATTACK_SPEED, new AttributeModifier(LEGS_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
+                    EquipmentSlot.FEET, List.of(
+                            new ModifierSpec(Attributes.MINING_EFFICIENCY, new AttributeModifier(FEET_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ATTACK_SPEED, new AttributeModifier(FEET_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                            )))),
+            Map.entry("minecraft:netherite", Map.of(
+                    EquipmentSlot.HEAD, List.of(
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(HELM_MODIFIER_ID,0.06f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(HELM_MODIFIER_ID,0.02f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(HELM_MODIFIER_ID,0.01f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(HELM_MODIFIER_ID,-0.01f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.CHEST, List.of(
-                            new ModifierSpec(Attributes.LUCK, 0.5f, AttributeModifier.Operation.ADD_VALUE)
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(CHEST_MODIFIER_ID,0.12f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(CHEST_MODIFIER_ID,0.04f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(CHEST_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(CHEST_MODIFIER_ID,-0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
 
                     ),
                     EquipmentSlot.LEGS, List.of(
-                            new ModifierSpec(Attributes.LUCK, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(LEGS_MODIFIER_ID,0.07f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(LEGS_MODIFIER_ID,0.03f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(LEGS_MODIFIER_ID,0.03f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(LEGS_MODIFIER_ID,-0.03f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.FEET, List.of(
-                            new ModifierSpec(Attributes.LUCK, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    )
-            )),
-            new MaterialProfile("gold", Map.of(
+                            new ModifierSpec(Attributes.ARMOR, new AttributeModifier(FEET_MODIFIER_ID,0.04f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(FEET_MODIFIER_ID,0.01f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.GRAVITY, new AttributeModifier(FEET_MODIFIER_ID,0.01f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)),
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(FEET_MODIFIER_ID,-0.01f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
+                    ))),
+            Map.entry("minecraft:quartz", Map.of(
                     EquipmentSlot.HEAD, List.of(
-                            new ModifierSpec(Attributes.MINING_EFFICIENCY, 0.3f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-                            new ModifierSpec(Attributes.ATTACK_SPEED, 0.1f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                            new ModifierSpec(Attributes.ATTACK_DAMAGE, new AttributeModifier(HELM_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.CHEST, List.of(
-                            new ModifierSpec(Attributes.MINING_EFFICIENCY, 0.2f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-                            new ModifierSpec(Attributes.ATTACK_SPEED, 0.1f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                            new ModifierSpec(Attributes.ATTACK_DAMAGE, new AttributeModifier(CHEST_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.LEGS, List.of(
-                            new ModifierSpec(Attributes.MINING_EFFICIENCY, 0.2f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-                            new ModifierSpec(Attributes.ATTACK_SPEED, 0.1f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                            new ModifierSpec(Attributes.ATTACK_DAMAGE, new AttributeModifier(LEGS_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     ),
                     EquipmentSlot.FEET, List.of(
-                            new ModifierSpec(Attributes.MINING_EFFICIENCY, 0.1f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-                            new ModifierSpec(Attributes.ATTACK_SPEED, 0.3f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                            new ModifierSpec(Attributes.ATTACK_DAMAGE, new AttributeModifier(FEET_MODIFIER_ID,0.05f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE))
                     )
             )),
-            new MaterialProfile("netherite", Map.of(
+            Map.entry("minecraft:redstone", Map.of(
                     EquipmentSlot.HEAD, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 0.5f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, 0.2f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.GRAVITY, 0.001f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, -0.001f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(HELM_MODIFIER_ID,0.02f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
                     EquipmentSlot.CHEST, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 1.0f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, 0.3f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.GRAVITY, 0.002f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, -0.002f, AttributeModifier.Operation.ADD_VALUE)
-
-                    ),
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(CHEST_MODIFIER_ID,0.02f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
                     EquipmentSlot.LEGS, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 1.0f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, 0.3f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.GRAVITY, 0.002f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, -0.002f, AttributeModifier.Operation.ADD_VALUE)
-
-                    ),
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(LEGS_MODIFIER_ID,0.06f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    )),
                     EquipmentSlot.FEET, List.of(
-                            new ModifierSpec(Attributes.ARMOR, 0.5f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.ARMOR_TOUGHNESS, 0.2f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.GRAVITY, 0.001f, AttributeModifier.Operation.ADD_VALUE),
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, -0.001f, AttributeModifier.Operation.ADD_VALUE)
-
-                    )
-            )),
-            new MaterialProfile("quartz", Map.of(
-                    EquipmentSlot.HEAD, List.of(
-                            new ModifierSpec(Attributes.ATTACK_DAMAGE, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
-                    EquipmentSlot.CHEST, List.of(
-                            new ModifierSpec(Attributes.ATTACK_DAMAGE, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
-                    EquipmentSlot.LEGS, List.of(
-                            new ModifierSpec(Attributes.ATTACK_DAMAGE, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
-                    EquipmentSlot.FEET, List.of(
-                            new ModifierSpec(Attributes.ATTACK_DAMAGE, 0.5f, AttributeModifier.Operation.ADD_VALUE)
-                    )
-            )),
-            new MaterialProfile("redstone", Map.of(
-                    EquipmentSlot.HEAD, List.of(
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, 0.001f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
-                    EquipmentSlot.CHEST, List.of(
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, 0.001f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
-                    EquipmentSlot.LEGS, List.of(
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, 0.001f, AttributeModifier.Operation.ADD_VALUE)
-                    ),
-                    EquipmentSlot.FEET, List.of(
-                            new ModifierSpec(Attributes.MOVEMENT_SPEED, 0.003f, AttributeModifier.Operation.ADD_VALUE)
-                    )
+                            new ModifierSpec(Attributes.MOVEMENT_SPEED, new AttributeModifier(FEET_MODIFIER_ID,0.1f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+                    ))
             ))
     );
 
-    private static final Map<MaterialSlot, Map<Holder<Attribute>, AttributeModifier>> LOOKUP =
-            MATERIALS.stream()
-                    .flatMap(profile -> profile.modifiers().entrySet().stream().flatMap(se ->
-                            se.getValue().stream().map(spec -> Map.entry(
-                                    new MaterialSlot(profile.name(), se.getKey()),
-                                    modify(spec.op(), new MaterialAttribute(profile.name(), spec.attribute(), spec.value(), se.getKey()))
-                            ))
-                    ))
-                    .collect(Collectors.toUnmodifiableMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (a, b) -> { var merged = new HashMap<>(a); merged.putAll(b); return Map.copyOf(merged); }
-                    ));
-
-    public static void initialize() {
-        LOGGER.info("Initializing modifiers...");
-    }
-
-    public static Map<Holder<Attribute>, AttributeModifier> getModifiers(Holder<TrimMaterial> trim, EquipmentSlot slot)
+    public static void applyModifiers(ItemStack stack, ArmorTrim trim)
     {
-        String material = trim.value().assets().base().suffix();
-        return LOOKUP.get(new MaterialSlot(material, slot));
-    }
+        EquipmentSlot slot = stack.get(DataComponents.EQUIPPABLE).slot();
 
-    public static Holder<TrimMaterial> getMaterial(ItemStack stack)
-    {
-        ArmorTrim trim = stack.getComponents().get(DataComponents.TRIM);
-        if (trim == null)
+        EquipmentSlotGroup slotGroup = switch(slot) {
+            case EquipmentSlot.HEAD -> EquipmentSlotGroup.HEAD;
+            case EquipmentSlot.CHEST -> EquipmentSlotGroup.CHEST;
+            case EquipmentSlot.LEGS -> EquipmentSlotGroup.LEGS;
+            case EquipmentSlot.FEET -> EquipmentSlotGroup.FEET;
+            default -> null;
+        };
+
+        if (slotGroup == null) return;
+
+        ItemAttributeModifiers existing = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+
+        if (existing != null)
         {
-            return null;
-        }
-        return trim.material();
-    }
-
-    public static void applyModifiers(Map<Holder<Attribute>, AttributeModifier> modifiers, LivingEntity entity)
-    {
-        for (Map.Entry<Holder<Attribute>, AttributeModifier> entry : modifiers.entrySet()) {
-            AttributeModifier attributeModifier = entry.getValue();
-            AttributeInstance attr = entity.getAttribute(entry.getKey());
-            if (attr != null && attributeModifier != null) {
-                attr.addOrReplacePermanentModifier(attributeModifier);
+            for (ItemAttributeModifiers.Entry entry : existing.modifiers())
+            {
+                if (!isFlagged(entry.modifier().id()))
+                {
+                    builder.add(entry.attribute(), entry.modifier(), entry.slot());
+                }
             }
         }
-    }
 
-    public static void removeModifiers(Map<Holder<Attribute>, AttributeModifier> modifiers, LivingEntity entity)
-    {
-        for (Map.Entry<Holder<Attribute>, AttributeModifier> entry : modifiers.entrySet()) {
-            Identifier id = entry.getValue().id();
-            AttributeInstance attr = entity.getAttribute(entry.getKey());
-            if (attr != null) {
-                attr.removeModifier(id);
-            }
-        }
-    }
-
-    private static Map<Holder<Attribute>, AttributeModifier> modify(AttributeModifier.Operation operation, MaterialAttribute... matAtts)
-    {
-        Map<Holder<Attribute>, AttributeModifier> map = new HashMap<>();
-        for (MaterialAttribute mat : matAtts) {
-            map.putAll(modify(operation, mat));
+        Map<EquipmentSlot, List<ModifierSpec>> map = MATERIALS.getOrDefault(trim.material().getRegisteredName(), null);
+        if (map == null) {
+            stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+            return;
         }
 
-        return map;
+        List<ModifierSpec> modifiers = map.get(slot);
+
+        for (ModifierSpec spec : modifiers) {
+            builder.add(spec.attribute, spec.modifier, slotGroup);
+        }
+
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
     }
 
-    private static Map<Holder<Attribute>, AttributeModifier> modify(AttributeModifier.Operation operation, MaterialAttribute matAtt)
-    {
-        Holder<Attribute> attr = matAtt.attribute();
-        Identifier id = Objects.requireNonNull(Identifier.tryBuild(ArmorUpgrades.MOD_ID, matAtt.toString()));
 
-        return Map.of(attr, new AttributeModifier(
-                id, matAtt.value(),
-                operation
-        ));
+
+    private static boolean isFlagged(Identifier id)
+    {
+        return id.getNamespace().equals(MOD_ID);
     }
 }
