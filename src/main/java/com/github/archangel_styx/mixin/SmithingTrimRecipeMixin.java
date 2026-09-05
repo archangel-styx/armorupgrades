@@ -2,15 +2,10 @@ package com.github.archangel_styx.mixin;
 
 import com.github.archangel_styx.upgrades.AttributeModifiers;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SmithingTrimRecipe;
-import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.minecraft.world.item.equipment.trim.TrimMaterial;
-import net.minecraft.world.item.equipment.trim.TrimPattern;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,8 +24,6 @@ public class SmithingTrimRecipeMixin {
     private static void injectingModifiers_afterTrim(CallbackInfoReturnable<ItemStack> cir, @Local(ordinal = 2) ItemStack stack)
     {
         ArmorTrim trim = stack.get(DataComponents.TRIM);
-        TrimMaterial material = trim.material().value();
-        TrimPattern pattern = trim.pattern().value();
         AttributeModifiers.applyModifiers(stack, trim);
     }
 }
